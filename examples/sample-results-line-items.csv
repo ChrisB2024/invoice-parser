@@ -1,0 +1,5 @@
+source_file,line_number,description,quantity,unit_price,amount
+invoices.pdf,1,Enterprise Cloud Migration Services (Phase 1),1.0,2500.0,2500.0
+invoices.pdf,2,Monthly Server Maintenance & Monitoring,1.0,450.0,450.0
+invoices.pdf,3,AWS Architecture Consultation (Senior Eng.),5.0,150.0,750.0
+invoices.pdf,4,SSL Certificate Renewal (1 Year),1.0,89.99,89.99
