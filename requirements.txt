@@ -1,0 +1,7 @@
+# Four dependencies. Each is justified in context/architecture.md → Stack.
+# Adding a fifth requires a decision entry in context/progress-tracker.md.
+
+pdfplumber>=0.11,<0.12      # PDF text extraction (MIT — PyMuPDF is AGPL)
+openai>=1.40,<2             # official SDK; only path to native Structured Outputs
+pydantic>=2.7,<3            # the extraction schema, bound directly by the SDK
+python-dotenv>=1.0,<2       # lets a non-developer put the key in .env

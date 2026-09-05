@@ -1,0 +1,19 @@
+# Secrets — never commit
+.env
+
+# Operator data — the client's invoices and results stay local.
+# The folders are tracked (via .gitkeep) so a fresh clone can run with
+# the default paths; their contents are not.
+invoices/*
+!invoices/.gitkeep
+output/*
+!output/.gitkeep
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# OS
+.DS_Store
