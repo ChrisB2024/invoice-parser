@@ -52,12 +52,21 @@ not for Chris, and the answer to Q2 may change the scope.
   default ships. Worth confirming before delivery: reshaping the output
   once it is already in use means redoing downstream work.
 
-- **Q2 — How many of the 200 PDFs are scanned images?** *(tooling ready,
-  answer still needed)* `--dry-run` now reports this for free. `pdfplumber`
-  returns empty text for a scan, and OCR is explicitly out of scope.
-  *Blocks:* whether the agreed scope covers this backlog as it actually
-  is. Unit 02 answers it for free, before any API spend — **run it
-  against the real folder before agreeing any change.**
+- **Q2 — How many of the 200 PDFs are scanned images?** *(client-side —
+  not answerable from here)* `pdfplumber` returns empty text for a scan,
+  and OCR is out of scope. The files are not available until the job
+  starts, so this cannot be resolved in advance.
+
+  *Blocks:* **nothing.** The design absorbs the unknown instead of
+  waiting on it — a scan is detected, named, and reported, and the run
+  continues. A 200-file folder with 40 scans yields 160 good rows plus a
+  clean list of the 40 needing a decision. That is a useful deliverable
+  either way, so the scope can be committed to without the number.
+
+  Two zero-cost ways to get it early: ask the client whether the
+  invoices are digital PDFs or scans of paper, or have them run
+  `python main.py --dry-run` themselves — it needs no API key and
+  prints the census directly.
 
 - **Q3 — Model and budget ceiling.** Which OpenAI model, and what total
   spend is acceptable for a 200-invoice run? *Blocks:* the `MODEL`
@@ -143,17 +152,23 @@ not for Chris, and the answer to Q2 may change the scope.
   a one-off backlog, and the verification method is the seven conditions
   in `project-overview.md` → *Done Looks Like*, run against real files.
 - No concurrency. A 200-file run is serial and will take several minutes.
-  Deliberate — serial output is legible, and rate-limit handling for
-  parallel calls is scope the price does not cover.
+  Deliberate — serial output is legible and debuggable, and rate-limit
+  handling for parallel calls is outside the agreed scope.
 
 ## Resume Here
 
-Context system is complete; no code is implemented. `main.py` currently
-holds structure, the finished Pydantic models, and TODOs keyed to unit
-numbers — the function bodies are deliberately empty for Chris to fill.
+Units 01–05 are implemented in `main.py` and verified end to end against
+real PDFs — including a deliberately hostile one carrying both a prompt
+injection and a spreadsheet formula payload. Both defences held. See
+Shipped above for the full check table.
 
-Start by reading `context/specs/01-cli-and-config.md` and implementing
-Unit 01.
+Nothing is in flight. The code is demo-ready and pushed.
 
-Before any API spend, run Unit 02 against the client's real folder — Q2
-is the question that decides whether the current scope fits the backlog.
+Remaining work is not coding work: Q1 and Q3–Q7 are questions for the
+client, and Q2 resolves itself on first contact with the real folder.
+None of them block a run — every one has a working default, and the
+`needs_review` / failure paths surface anything the defaults get wrong
+rather than hiding it.
+
+To run: `source .venv/bin/activate`, then `python main.py --dry-run` for
+a free census, or `python main.py --limit 1` for a single live parse.
