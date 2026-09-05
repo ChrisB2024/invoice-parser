@@ -31,8 +31,8 @@ before continuing.
 
 ## This Project
 
-A one-off utility script, fixed-price. Three rules override anything
-inferred from general Python practice:
+A one-off utility script with a fixed, agreed scope. Three rules
+override anything inferred from general Python practice:
 
 1. **The deliverable is a single `main.py`.** Never split it into a
    package or add helper modules.

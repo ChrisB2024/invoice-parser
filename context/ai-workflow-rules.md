@@ -40,8 +40,8 @@ If the result cannot be verified end to end in one sitting, split it.
 - Ambiguous → resolve it in the context file first, then implement.
 - Absent → log it under Open Questions in `progress-tracker.md` and ask.
 - **Specifically: never invent a field, a column, a CLI flag, or a
-  default the spec does not name.** Scope creep on a $50 fixed-price job
-  is unpaid work and a longer review cycle.
+  default the spec does not name.** Anything outside the agreed scope is
+  a change to be discussed, not assumed.
 
 ## Cost Discipline
 

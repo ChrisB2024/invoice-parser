@@ -52,8 +52,12 @@ order as part of the deliverable.
 
 The single output function. Enforces the column widths from
 `ui-context.md`: 9 for the counter, 6 for the level, 32 for the filename.
-Long filenames push the message right, never truncate. Writes to stdout;
-`FAIL` also to stderr. No colour, no emoji.
+Long filenames push the message right, never truncate. No colour, no emoji.
+
+All run output goes to **stdout** so the log stays one coherent,
+copy-pasteable stream. Fatal startup errors go through a separate `die()`
+helper to **stderr** with exit 2. (Revised during Unit 01: sending `FAIL`
+to both streams duplicated every failure line.)
 
 ### `parse_args()`
 

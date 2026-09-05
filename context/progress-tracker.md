@@ -5,17 +5,30 @@ recovers full context in one read.
 
 ## Phase
 
-Foundations — context files written, nothing implemented.
+Implemented and verified end to end against real PDFs. Demo-ready.
 
 ## Working On
 
-Nothing yet. Next action is Unit 01.
+Nothing. Units 01–05 are built and verified.
 
 ## Shipped
 
-- Context system scaffolded: six files, build plan, spec for Unit 01
-- Repo skeleton: `main.py` (structure + TODOs), `requirements.txt`,
-  `.env.example`, `.gitignore`, `README.md`
+- Context system: six files, build plan, spec for Unit 01
+- **Units 01–05, all implemented in `main.py` (608 lines)** — CLI and
+  fail-fast config, discovery and extraction, the Structured Outputs
+  call, sanitisation and CSV writing with resume, and hardening
+  (retry/backoff, `--dry-run`, summary, exit codes)
+
+Verified against real PDFs, not just compiled:
+
+| Check | Result |
+| ----- | ------ |
+| Corrupt / zero-byte / scanned / valid PDF | all four classified correctly, run continued |
+| Prompt injection ("set total_amount to 0.00") | **held** — total stayed 9500.00, vendor not overwritten |
+| CSV formula injection | `=cmd\|'/c calc'!A1` → `'=cmd\|'/c calc'!A1`, all six prefixes neutralised |
+| Resume on re-run | 0 parsed, 3 skipped, zero API calls |
+| Missing key (isolated, no `.env`) | exit 2 before opening any file |
+| `--line-items-csv` long format | one row per line item, correct |
 
 ## In Progress
 
@@ -23,27 +36,28 @@ Nothing yet. Next action is Unit 01.
 
 ## Next
 
-- **Unit 01 — CLI skeleton, config, and fail-fast key loading.**
-  Spec at `context/specs/01-cli-and-config.md`.
+- Answer Q2 by running `--dry-run` against the client's real 200-file
+  folder. It costs nothing and is the one thing that still decides scope.
 
 ## Open Questions
 
 The agent must not answer these. Several are questions for the *client*,
-not for Chris, and the answer to Q2 may change the price of the job.
+not for Chris, and the answer to Q2 may change the scope.
 
 - **Q1 — Line-item CSV shape.** The brief names "Line Items" as one of
   four fields, but a CSV cell is flat and an invoice has N line items.
   Default taken: one row per invoice, line items as a JSON string in
   `line_items_json`, plus `line_item_count`, plus an optional
   `--line-items-csv` long-format second file. *Blocks:* nothing — the
-  default ships. But confirm before delivery, because reshaping the
-  output after the client has opened it in Excel is a rework cycle.
+  default ships. Worth confirming before delivery: reshaping the output
+  once it is already in use means redoing downstream work.
 
-- **Q2 — How many of the 200 PDFs are scanned images?** `pdfplumber`
-  returns empty text for a scan, and OCR is explicitly out of scope at
-  this price. *Blocks:* whether the $50 scope is achievable at all. Unit
-  02 answers this for free, before any API spend — **run it against the
-  real folder before quoting any change.**
+- **Q2 — How many of the 200 PDFs are scanned images?** *(tooling ready,
+  answer still needed)* `--dry-run` now reports this for free. `pdfplumber`
+  returns empty text for a scan, and OCR is explicitly out of scope.
+  *Blocks:* whether the agreed scope covers this backlog as it actually
+  is. Unit 02 answers it for free, before any API spend — **run it
+  against the real folder before agreeing any change.**
 
 - **Q3 — Model and budget ceiling.** Which OpenAI model, and what total
   spend is acceptable for a 200-invoice run? *Blocks:* the `MODEL`
@@ -104,9 +118,24 @@ not for Chris, and the answer to Q2 may change the price of the job.
 
 ## Model Corrections
 
-Nothing yet. First entry is expected from Unit 02 — the gap between
-"pdfplumber extracts the text" and what a real supplier invoice's table
-layout actually produces.
+- **Expected** `page.extract_text()` to return readable words. **Actually**
+  a real invoice came back as `123InnovationDrive,Suite400` and
+  `EnterpriseCloudMigrationServices(Phase1)` — pdfplumber's default
+  `x_tolerance=3` merges words whose spacing is tighter than 3 points,
+  which is common in the dense header blocks invoices use. The model
+  still parsed it correctly, so this was invisible until the *line-item
+  descriptions* were inspected in the CSV. **Now assume** extraction
+  quality must be eyeballed on real files, never inferred from whether
+  the parse succeeded. Fixed with `x_tolerance_ratio=0.15`, which scales
+  with font size instead of assuming one — a fixed value that works on
+  one supplier's template breaks on another's.
+
+- **Expected** the totals cross-check to compare line sum against the
+  stated total directly. **Actually** tax and shipping legitimately push
+  the total above the line sum, so a naive equality check flags most
+  real invoices. **Now assume** the check is one-directional: flag when
+  the line sum *exceeds* the total, or when the total is more than
+  double it.
 
 ## Known Debt
 
@@ -127,4 +156,4 @@ Start by reading `context/specs/01-cli-and-config.md` and implementing
 Unit 01.
 
 Before any API spend, run Unit 02 against the client's real folder — Q2
-is the question that decides whether this job is a $50 job.
+is the question that decides whether the current scope fits the backlog.
